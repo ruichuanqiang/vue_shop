@@ -8,7 +8,8 @@ import './assets/css/global.css'
 import './assets/fonts/iconfont.css'
 
 import ElementUI, {
-  Message
+  Message,
+  MessageBox
 } from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
@@ -25,6 +26,7 @@ axios.interceptors.request.use(config => {
 Vue.prototype.$http = axios
 
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)

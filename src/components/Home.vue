@@ -19,9 +19,11 @@
           background-color="#324157"
           text-color="#bfcbd9"
           active-text-color="#20a0ff"
-          :unique-opened="true"
+          unique-opened
+          router
           :collapse="isCollapse"
           :collapse-transition="false"
+          :default-active="activePath"
         >
           <el-submenu
             :index="item.id + ''"
@@ -34,9 +36,10 @@
             </template>
 
             <el-menu-item
-              :index="items.id + ''"
+              :index="'/' + items.path"
               v-for="items in item.children"
               :key="items.id"
+              @click="saveNavState('/' + items.path)"
             >
               <template slot="title">
                 <i class="el-icon-menu"></i>
@@ -46,7 +49,9 @@
           </el-submenu>
         </el-menu>
       </el-aside>
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -62,11 +67,13 @@ export default {
         '102': 'iconfont icon-danju',
         '145': 'iconfont icon-baobiao'
       },
-      isCollapse: false
+      isCollapse: false,
+      activePath: ''
     }
   },
   created() {
     this.getMenuList()
+    this.activePath = window.sessionStorage.getItem('activePath')
   },
   methods: {
     outLogin() {
@@ -85,6 +92,10 @@ export default {
     },
     toggleCollapse() {
       this.isCollapse = !this.isCollapse
+    },
+    saveNavState(activePath) {
+      window.sessionStorage.setItem('activePath', activePath)
+      this.activePath = activePath
     }
   }
 }
