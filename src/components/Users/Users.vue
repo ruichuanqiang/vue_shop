@@ -45,7 +45,7 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="300px">
           <template slot-scope="scope">
             <el-button
               type="primary"
@@ -66,9 +66,10 @@
               :enterable="false"
             >
               <el-button
-                type="success"
+                type="warning"
                 icon="el-icon-setting"
                 size="mini"
+                @click="setUserShowDiglog(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -152,6 +153,35 @@
     </el-dialog>
 
     <!--  -->
+    <el-dialog
+      title="分配角色"
+      :visible.sync="userPermissionsDialogVisible"
+      width="50%"
+      @close="closeUserDialogVisible"
+    >
+      <div>
+        <p>当前用户名：{{ userInfo.username }}</p>
+        <p>当前的角色：{{ userInfo.role_name }}</p>
+        <p>
+          分配新角色：
+          <el-select v-model="selectedRoled" placeholder="请选择">
+            <el-option
+              v-for="item in rolesList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="userPermissionsDialogVisible = false"
+          >取 消</el-button
+        >
+        <el-button type="primary" @click="saveUserPermissions">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -201,7 +231,7 @@ export default {
         ],
         password: [
           { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 3, max: 10, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+          { min: 6, max: 10, message: '长度在 6 到 20 个字符', trigger: 'blur' }
         ],
         email: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -223,7 +253,11 @@ export default {
         ]
       },
       editDialogVisible: false,
-      editForm: {}
+      editForm: {},
+      userPermissionsDialogVisible: false,
+      userInfo: {},
+      rolesList: [],
+      selectedRoled: ''
     }
   },
   methods: {
@@ -327,6 +361,36 @@ export default {
         this.getUserList()
         this.$message.success('删除用户成功!')
       }
+    },
+    // 获取分配角色列表
+    async setUserShowDiglog(userInfo) {
+      this.userInfo = userInfo
+      this.userPermissionsDialogVisible = true
+      const { data: res } = await this.$http.get('roles')
+      if (res.meta.status !== 200)
+        return this.$message.error('获取角色列表失败')
+      this.rolesList = res.data
+    },
+    //修改用户当前权限
+    async saveUserPermissions() {
+      if (!this.selectedRoled) {
+        return this.$message.error('请选择要分配的角色!')
+      }
+      const { data: res } = await this.$http.put(
+        `users/${this.userInfo.id}/role`,
+        {
+          rid: this.selectedRoled
+        }
+      )
+      if (res.meta.status !== 200) return this.$message.error('更新角色失败!')
+      this.getUserList()
+      this.$message.success('重新分配角色成功!')
+      this.userPermissionsDialogVisible = false
+    },
+    // 修复关闭分配权限框数据初始化
+    closeUserDialogVisible() {
+      this.selectedRoled = ''
+      this.rolesList = []
     }
   }
 }

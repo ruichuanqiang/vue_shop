@@ -10,7 +10,9 @@
         <span>电商后台管理系统</span>
       </div>
 
-      <el-button type="info" @click="outLogin">退出登录</el-button></el-header
+      <el-button type="info" @click="outLogin" size="mini"
+        >退出登录</el-button
+      ></el-header
     >
 
     <el-container>
@@ -93,6 +95,8 @@ export default {
     toggleCollapse() {
       this.isCollapse = !this.isCollapse
     },
+
+    // 缓存记录侧边栏选中的项目
     saveNavState(activePath) {
       window.sessionStorage.setItem('activePath', activePath)
       this.activePath = activePath
